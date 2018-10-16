@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckingPassingPossibilityOfObjectThroughHole", "CheckingPassingPossibilityOfObjectThroughHole\CheckingPassingPossibilityOfObjectThroughHole.csproj", "{E1A394C4-31B1-4099-A990-5E904DA2157A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PossibilityOfPassingLibrary", "PossibilityOfPassingLibrary\PossibilityOfPassingLibrary.csproj", "{2203979E-DA62-4400-B638-6EDD5474992D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1A394C4-31B1-4099-A990-5E904DA2157A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A394C4-31B1-4099-A990-5E904DA2157A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A394C4-31B1-4099-A990-5E904DA2157A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A394C4-31B1-4099-A990-5E904DA2157A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2203979E-DA62-4400-B638-6EDD5474992D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2203979E-DA62-4400-B638-6EDD5474992D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2203979E-DA62-4400-B638-6EDD5474992D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2203979E-DA62-4400-B638-6EDD5474992D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8FD803F-00AB-4DCB-A304-BBCDE793A27F}
+	EndGlobalSection
+EndGlobal
