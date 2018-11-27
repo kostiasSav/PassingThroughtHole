@@ -12,28 +12,70 @@ using System.Windows.Media;
 
 namespace PossibilityOfPassingLibrary
 {
-    public class SizesInput
+    internal class SizesInput
     {
-        public void Input(string holeType, string passingObjectType, ref Grid objectGrid, ref Grid holeGrig)
+        internal double[] Input(string holeType, string passingObjectType)
         {
-            if(holeType == "Round")
+            foreach(var holeSizeTextBox in GeneratorOfInputFields.HoleSizesTextBoxes)
             {
-                RoundHole roundHole = new RoundHole();
-                //roundHole.RoundHoleDiameter=
+                if (Convert.ToDouble(holeSizeTextBox.Text) <= 0)
+                {
+                    throw new SizeException("Wrong format.");
+                }
             }
-        }
-    }
-    public class ChekerPassingPossibility
-    {
-        public bool CheckPassingPossibility(string holeType, string passingObjectType, ref Grid objectGrid, ref Grid holeGrig)
-        {
+            foreach (var ObjectSizeTextBox in GeneratorOfInputFields.ObjectSizesTextBoxes)
+            {
+                if (Convert.ToDouble(ObjectSizeTextBox.Text) <= 0)
+                {
+                    throw new SizeException("Wrong format. Size must be biger than 0");
+                }
+            }
             if (holeType == "Round")
             {
-                return CheckPassingPossibilityOfObjectThroughRoundHole();
+                RoundHole.RoundHoleDiameter = Convert.ToDouble(GeneratorOfInputFields.HoleSizesTextBoxes[0].Text);
             }
             else if (holeType == "Square")
             {
-                return CheckPassingPossibilityOfObjectThroughSquareHole();
+                SquareHole.SquareHoleSizes[0] = Convert.ToDouble(GeneratorOfInputFields.HoleSizesTextBoxes[0].Text);
+                SquareHole.SquareHoleSizes[1] = Convert.ToDouble(GeneratorOfInputFields.HoleSizesTextBoxes[1].Text);
+
+            }
+            if (passingObjectType == "Cubic")
+            {
+                Array.Clear(CubicObject.CubeObjectSizes, 0, 2);
+                CubicObject.CubeObjectSizes[0] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[0].Text);
+                CubicObject.CubeObjectSizes[1] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[1].Text);
+                CubicObject.CubeObjectSizes[2] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[2].Text);
+                return CubicObject.CubeObjectSizes;
+            }
+            else if(passingObjectType == "Cylindrical")
+            {
+                Array.Clear(CylindricalObject.CylindricalObjectSizes, 0, 1);
+                CylindricalObject.CylindricalObjectSizes[0] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[0].Text);
+                CylindricalObject.CylindricalObjectSizes[1] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[1].Text);
+                return CylindricalObject.CylindricalObjectSizes;
+            }
+            else
+            {
+                Array.Clear(BallObject.BallObjectSizes, 0, 1);
+                BallObject.BallObjectSizes[0] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[0].Text);
+                BallObject.BallObjectSizes[1] = Convert.ToDouble(GeneratorOfInputFields.ObjectSizesTextBoxes[0].Text);
+                return BallObject.BallObjectSizes;
+            }
+        }
+    }
+    internal class CheckerPassingPossibility
+    {
+        internal bool CheckPassingPossibility(string holeType, string passingObjectType)
+        {
+            SizesInput sizesInput = new SizesInput();
+            if (holeType == "Round")
+            {
+                return CheckPassingPossibilityOfObjectThroughRoundHole(sizesInput.Input(holeType, passingObjectType), RoundHole.RoundHoleDiameter, passingObjectType);
+            }
+            else if (holeType == "Square")
+            {
+                return CheckPassingPossibilityOfObjectThroughSquareHole(sizesInput.Input(holeType, passingObjectType), SquareHole.SquareHoleSizes, passingObjectType);
             }
             else
             {
@@ -41,12 +83,43 @@ namespace PossibilityOfPassingLibrary
             }
         }
 
-        private bool CheckPassingPossibilityOfObjectThroughRoundHole(double[] objectSizes, double roundHoleDiameter)
+        private bool CheckPassingPossibilityOfObjectThroughRoundHole(double[] objectSizes, double roundHoleDiameter, string objectType)
         {
-            Array.Sort(objectSizes);
-            if (objectSizes[0] <= roundHoleDiameter && objectSizes[1] <= roundHoleDiameter)
+            if (objectType == "Cubic")
             {
-                return true;
+                Array.Sort(objectSizes);
+                double diagonal = Math.Sqrt(Math.Pow(objectSizes[0], 2) + Math.Pow(objectSizes[1], 2));
+                if (diagonal <= roundHoleDiameter)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (objectType == "Cylindrical")
+            {
+                double diagonal = Math.Sqrt(Math.Pow(objectSizes[0], 2) + Math.Pow(objectSizes[1], 2));
+                if (objectSizes[1] <= roundHoleDiameter || diagonal <= roundHoleDiameter)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if(objectType=="Ball")
+            {
+                if (objectSizes[0] <= roundHoleDiameter)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
@@ -54,8 +127,12 @@ namespace PossibilityOfPassingLibrary
             }
         }
 
-        private bool CheckPassingPossibilityOfObjectThroughSquareHole(double[] objectSizes, double[] squareHoleSizes)
+        private bool CheckPassingPossibilityOfObjectThroughSquareHole(double[] objectSizes, double[] squareHoleSizes, string objectType)
         {
+            if((objectType == "Cylindrical") && (objectSizes[0] > objectSizes[1]))
+            {
+                objectSizes[0] = objectSizes[1];
+            }
             Array.Sort(objectSizes);
             Array.Sort(squareHoleSizes);
             if (objectSizes[0] <= squareHoleSizes[0] && objectSizes[1] <= squareHoleSizes[1])
@@ -68,37 +145,56 @@ namespace PossibilityOfPassingLibrary
             }
         }
     }
-
-    public class RoundHole
+    public class AnswerOutput
     {
-        internal double RoundHoleDiameter;
+        internal void OutputAnswer(string holeType, string passingObjectType, Label label)
+        {
+            CheckerPassingPossibility checkerPassingPossibility = new CheckerPassingPossibility();
+            if (checkerPassingPossibility.CheckPassingPossibility(holeType, passingObjectType))
+            {
+                label.Content = "It is possible to move object through hole";
+            }
+            else
+            {
+                label.Content = "It is NOT possible to move object through hole";
+            }
+        }
     }
 
-    public class SquareHole
+    internal class RoundHole
     {
-        private double[] SquareHoleSizes = new double[2];
+        internal static double RoundHoleDiameter;
     }
 
-    public class CubicObject
+    internal class SquareHole
     {
-        private double[] CubeObjectSizes = new double[3];
+        internal static double[] SquareHoleSizes = new double[2];
     }
 
-    public class CylindricalObject
+    internal class CubicObject
     {
-        private double[] CylindricalObjectSizes = new double[2];
+        internal static double[] CubeObjectSizes = new double[3];
     }
 
-    public class BallObject
+    internal class CylindricalObject
     {
-        private double[] BallObjectSizes = new double[2];
+        internal static double[] CylindricalObjectSizes = new double[2];
     }
 
-    public class GeneratorOfInputFields
+    internal class BallObject
     {
-        public void GenerateInputFieldsForObject(string passingObjectType, ref Grid objectGrid)
+        internal static double[] BallObjectSizes = new double[2];
+    }
+
+    internal class GeneratorOfInputFields
+    {
+        internal static List<TextBox> ObjectSizesTextBoxes = new List<TextBox>();
+        internal static List<TextBox> HoleSizesTextBoxes = new List<TextBox>();
+
+        internal void GenerateInputFieldsForObject(string passingObjectType, ref Grid objectGrid)
         {
             objectGrid.Children.Clear();
+            ObjectSizesTextBoxes.Clear();
             if (passingObjectType == "Cubic")
             {
                 GenerateInputFieldsForCubicObject(objectGrid);
@@ -112,9 +208,10 @@ namespace PossibilityOfPassingLibrary
                 GenerateInputFieldsForBallObject(objectGrid);
             }
         }
-        public void GenerateInputFieldsForHole(string holeType, ref Grid holeGrid)
+        internal void GenerateInputFieldsForHole(string holeType, ref Grid holeGrid)
         {
             holeGrid.Children.Clear();
+            HoleSizesTextBoxes.Clear();
             if (holeType == "Round")
             {
                 GenerateInputFieldsForRoundHole(holeGrid);
@@ -131,14 +228,17 @@ namespace PossibilityOfPassingLibrary
             objectGrid.Children.Add(heightTextBox);
             Grid.SetColumn(heightTextBox, 1);
             Grid.SetRow(heightTextBox, 0);
+            ObjectSizesTextBoxes.Add(heightTextBox);
             TextBox widthTextBox = new TextBox();
             objectGrid.Children.Add(widthTextBox);
             Grid.SetColumn(widthTextBox, 1);
             Grid.SetRow(widthTextBox, 1);
+            ObjectSizesTextBoxes.Add(widthTextBox);
             TextBox lenghtTextBox = new TextBox();
             objectGrid.Children.Add(lenghtTextBox);
             Grid.SetColumn(lenghtTextBox, 1);
             Grid.SetRow(lenghtTextBox, 2);
+            ObjectSizesTextBoxes.Add(lenghtTextBox);
             Label heightLabel = new Label
             {
                 Content = "Enter height"
@@ -168,10 +268,12 @@ namespace PossibilityOfPassingLibrary
             objectGrid.Children.Add(heightTextBox);
             Grid.SetColumn(heightTextBox, 1);
             Grid.SetRow(heightTextBox, 0);
+            ObjectSizesTextBoxes.Add(heightTextBox);
             TextBox diameterTextBox = new TextBox();
             objectGrid.Children.Add(diameterTextBox);
             Grid.SetColumn(diameterTextBox, 1);
             Grid.SetRow(diameterTextBox, 1);
+            ObjectSizesTextBoxes.Add(diameterTextBox);
             Label heightLabel = new Label
             {
                 Content = "Enter height"
@@ -194,6 +296,7 @@ namespace PossibilityOfPassingLibrary
             objectGrid.Children.Add(diameterTextBox);
             Grid.SetColumn(diameterTextBox, 1);
             Grid.SetRow(diameterTextBox, 0);
+            ObjectSizesTextBoxes.Add(diameterTextBox);
             Label diameterLabel = new Label
             {
                 Content = "Enter diameter"
@@ -209,6 +312,7 @@ namespace PossibilityOfPassingLibrary
             holeGrid.Children.Add(diameterTextBox);
             Grid.SetColumn(diameterTextBox, 1);
             Grid.SetRow(diameterTextBox, 0);
+            HoleSizesTextBoxes.Add(diameterTextBox);
             Label diameterLabel = new Label
             {
                 Content = "Enter diameter"
@@ -221,13 +325,16 @@ namespace PossibilityOfPassingLibrary
         private void GenerateInputFieldsForSquareHole(Grid holeGrid)
         {
             TextBox heightTextBox = new TextBox();
+            //cheakout
             holeGrid.Children.Add(heightTextBox);
             Grid.SetColumn(heightTextBox, 1);
             Grid.SetRow(heightTextBox, 0);
+            HoleSizesTextBoxes.Add(heightTextBox);
             TextBox widthTextBox = new TextBox();
             holeGrid.Children.Add(widthTextBox);
             Grid.SetColumn(widthTextBox, 1);
             Grid.SetRow(widthTextBox, 1);
+            HoleSizesTextBoxes.Add(widthTextBox);
             Label heightLabel = new Label
             {
                 Content = "Enter height"
@@ -242,6 +349,13 @@ namespace PossibilityOfPassingLibrary
             holeGrid.Children.Add(widthLabel);
             Grid.SetColumn(widthLabel, 0);
             Grid.SetRow(widthLabel, 1);
+        }
+    }
+    class SizeException : Exception
+    {
+        public SizeException(string message) : base(message)
+        {
+
         }
     }
 }

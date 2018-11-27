@@ -26,10 +26,10 @@ namespace CheckingPassingPossibilityOfObjectThroughHole
             InitializeComponent();
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void TypesOfObjectsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             GeneratorOfInputFields inputFields = new GeneratorOfInputFields ();
-            string passingObjectType = ((ComboBoxItem)(TypesOfOdjectsComboBox.SelectedItem)).Content.ToString();
+            string passingObjectType = ((ComboBoxItem)(TypesOfObjectsComboBox.SelectedItem)).Content.ToString();
             inputFields.GenerateInputFieldsForObject(passingObjectType, ref ObjectGrid);
         }
 
@@ -42,7 +42,15 @@ namespace CheckingPassingPossibilityOfObjectThroughHole
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            
+            try
+            {
+                AnswerOutput answerOutput = new AnswerOutput();
+                answerOutput.OutputAnswer(((ComboBoxItem)(TypesOfHolesComboBox.SelectedItem)).Content.ToString(), ((ComboBoxItem)(TypesOfObjectsComboBox.SelectedItem)).Content.ToString(), Label1);
+            }
+            catch(SizeException exception)
+            {
+                Label1.Content = exception.Message;
+            }
         }
     }
 }
